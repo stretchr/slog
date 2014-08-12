@@ -58,6 +58,44 @@ func TestLog(t *testing.T) {
 
 }
 
+func TestSetSource(t *testing.T) {
+
+	var wg sync.WaitGroup
+
+	p := slog.New("parent", slog.Err)
+	l := p.New("child")
+	defer func() {
+		p.Stop(stop.NoWait)
+		<-p.StopChan()
+	}()
+
+	r := NewTestReporter()
+	f := r.logFunc
+	r.logFunc = func(l *slog.Log) {
+		f(l)
+		wg.Done()
+	}
+	p.SetReporter(r)
+
+	wg.Add(1)
+	l.Err("test")
+	wg.Wait()
+
+	require.Equal(t, 1, len(r.logs))
+	require.Equal(t, "parent", r.logs[0].Source[0])
+	require.Equal(t, "child", r.logs[0].Source[1])
+
+	l.SetSource("new-source")
+	wg.Add(1)
+	l.Err("test")
+	wg.Wait()
+
+	require.Equal(t, 2, len(r.logs))
+	require.Equal(t, "parent", r.logs[0].Source[0])
+	require.Equal(t, "new-source", r.logs[1].Source[1])
+
+}
+
 func TestLogChildren(t *testing.T) {
 
 	var wg sync.WaitGroup
@@ -84,7 +122,6 @@ func TestLogChildren(t *testing.T) {
 	require.True(t, parent.Info("Something went", "wrong"))
 	require.True(t, child.Info("something went wrong in the child too"))
 	require.True(t, grandchild.Info("something went wrong in the grandchild too"))
-
 	wg.Wait()
 
 	require.Equal(t, 3, len(r.logs))
@@ -160,7 +197,7 @@ func TestLogReporter(t *testing.T) {
 	time.Sleep(500 * time.Millisecond)
 
 	require.Contains(t, buf.String(), `message`)
-	require.Contains(t, buf.String(), `parent➤child:`)
+	require.Contains(t, buf.String(), "parent»child:")
 	require.Contains(t, buf.String(), `prefix:`)
 
 }

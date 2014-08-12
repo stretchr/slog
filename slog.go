@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/pat/stop"
 )
 
+const nestedLogSep = "»"
+
 // Level represents the level of logging.
 type Level uint8
 
@@ -97,6 +99,8 @@ type Logger interface {
 	Err(a ...interface{}) bool
 	// New creates a new child logger, with this as the parent.
 	New(source string) Logger
+	// SetSource sets the source of this logger.
+	SetSource(source string)
 }
 
 type logger struct {
@@ -141,6 +145,12 @@ func (l *logger) SetLevel(level Level) {
 	l.root.m.Lock()
 	l.root.level = level
 	l.root.m.Unlock()
+}
+
+func (l *logger) SetSource(source string) {
+	l.m.Lock()
+	l.src[len(l.src)-1] = source
+	l.m.Unlock()
 }
 
 func (l *logger) SetReporter(r Reporter) {
@@ -227,7 +237,7 @@ func NewLogReporter(logger *log.Logger, fatal bool) Reporter {
 }
 
 func (l *logReporter) Log(log *Log) {
-	args := []interface{}{strings.Join(log.Source, "➤") + ":"}
+	args := []interface{}{strings.Join(log.Source, nestedLogSep) + ":"}
 	for _, d := range log.Data {
 		args = append(args, d)
 	}
@@ -256,3 +266,4 @@ func (_ nilLogger) Info(a ...interface{}) bool { return false }
 func (_ nilLogger) Warn(a ...interface{}) bool { return false }
 func (_ nilLogger) Err(a ...interface{}) bool  { return false }
 func (_ nilLogger) New(string) Logger          { return NilLogger }
+func (_ nilLogger) SetSource(string)           {}
