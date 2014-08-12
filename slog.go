@@ -240,3 +240,15 @@ func (l *logReporter) Log(log *Log) {
 // Stdout represents a reporter that writes to os.Stdout.
 // Errors will also call os.Exit.
 var Stdout = NewLogReporter(log.New(os.Stdout, "", log.LstdFlags), true)
+
+type nilLogger struct{}
+
+// NilLogger represents a zero memory Logger that always
+// returns false on the methods.
+var NilLogger = &nilLogger{}
+
+var _ Logger = (*nilLogger)(nil)
+
+func (_ nilLogger) Info(a ...interface{}) bool { return false }
+func (_ nilLogger) Warn(a ...interface{}) bool { return false }
+func (_ nilLogger) Err(a ...interface{}) bool  { return false }
