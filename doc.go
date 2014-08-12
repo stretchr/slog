@@ -8,6 +8,10 @@
 // * Custom reporters to send logs anywhere
 // * `Reporters` function for reporting to many places
 //
+// Usage
+//
+// Using slog.Logger is very simple:
+//
 //     // make a logger to output to stdout
 //     l := slog.New("parent", slog.Warn)
 //     l.SetReporter(slog.Stdout)
