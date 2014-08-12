@@ -1,4 +1,4 @@
-log
-===
+slog
+====
 
-Logging package for Go
+Logging package for Go.
