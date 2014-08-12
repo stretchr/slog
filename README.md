@@ -1,4 +1,4 @@
-slog
+slog [![GoDoc](https://godoc.org/github.com/stretchr/slog?status.png)](http://godoc.org/github.com/stretchr/slog)
 ====
 
 Logging package for Go.
