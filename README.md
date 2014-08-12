@@ -3,6 +3,13 @@ slog
 
 Logging package for Go.
 
+  * Concurrent safe
+  * Three levels; `slog.Err`, `slog.Warn`, and `slog.Info`
+  * Children loggers for sub-processes
+  * Built-in zero-memory `slog.NilLogger` to easily logging off without changing calling code
+  * Custom reporters to send logs anywhere
+  * `Reporters` function for reporting to many places
+
 ### Simple
 
 The `slog.Logger` interface is simple.
