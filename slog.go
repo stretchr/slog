@@ -79,8 +79,6 @@ type RootLogger interface {
 	// SetReporterFunc sets the specified ReporterFunc as
 	// the Reporter.
 	SetReporterFunc(f ReporterFunc)
-	// New creates a new child logger.
-	New(source string) Logger
 	// SetLevel sets the level of this and all children loggers.
 	SetLevel(level Level)
 }
@@ -97,6 +95,8 @@ type Logger interface {
 	// Err gets whether the logger is logging errors or not,
 	// and also makes such logs.
 	Err(a ...interface{}) bool
+	// New creates a new child logger, with this as the parent.
+	New(source string) Logger
 }
 
 type logger struct {
@@ -133,7 +133,7 @@ func (l *logger) New(source string) Logger {
 	return &logger{
 		level: l.level,
 		src:   append(l.src, source),
-		root:  l,
+		root:  l.root,
 	}
 }
 
@@ -255,3 +255,4 @@ var _ Logger = (*nilLogger)(nil) // ensure nilLogger is a valid Logger
 func (_ nilLogger) Info(a ...interface{}) bool { return false }
 func (_ nilLogger) Warn(a ...interface{}) bool { return false }
 func (_ nilLogger) Err(a ...interface{}) bool  { return false }
+func (_ nilLogger) New(string) Logger          { return NilLogger }
