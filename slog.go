@@ -1,7 +1,7 @@
 package slog
 
 import (
-	golog "log"
+	"log"
 	"os"
 	"strings"
 	"sync"
@@ -42,14 +42,30 @@ type Reporter interface {
 	Log(*Log)
 }
 
+// ReporterFunc is a function type capable of acting as
+// a reporter.
+type ReporterFunc func(*Log)
+
+// Log calls the ReporterFunc.
+func (f ReporterFunc) Log(l *Log) {
+	f(l)
+}
+
 // RootLogger represents a the root Logger that has
 // more capabilities than a normal Logger.
 // Normally, caller code would require the Logger interface only.
 type RootLogger interface {
 	stop.Stopper
 	Logger
+	// SetReporter sets the Reporter for this logger and
+	// child loggers to use.
 	SetReporter(r Reporter)
+	// SetReporterFunc sets the specified ReporterFunc as
+	// the Reporter.
+	SetReporterFunc(f ReporterFunc)
+	// New creates a new child logger.
 	New(source string) Logger
+	// SetLevel sets the level of this and all children loggers.
 	SetLevel(level Level)
 }
 
@@ -115,6 +131,10 @@ func (l *logger) SetReporter(r Reporter) {
 	l.root.Start()
 }
 
+func (l *logger) SetReporterFunc(f ReporterFunc) {
+	l.SetReporter(f)
+}
+
 func (l *logger) Start() {
 	l.root.c = make(chan *Log)
 	l.root.stopChan = stop.Make()
@@ -175,7 +195,7 @@ func (l *logger) StopChan() <-chan stop.Signal {
 }
 
 type logReporter struct {
-	logger *golog.Logger
+	logger *log.Logger
 	fatal  bool
 }
 
@@ -183,7 +203,7 @@ type logReporter struct {
 // log.Logger.
 // If fatal is true, errors will call Fatalln on the logger, otherwise
 // they will always call Println.
-func NewLogReporter(logger *golog.Logger, fatal bool) Reporter {
+func NewLogReporter(logger *log.Logger, fatal bool) Reporter {
 	return &logReporter{logger: logger}
 }
 
@@ -203,4 +223,4 @@ func (l *logReporter) Log(log *Log) {
 
 // Stdout represents a reporter that writes to os.Stdout.
 // Errors will also call os.Exit.
-var Stdout = NewLogReporter(golog.New(os.Stdout, "", golog.LstdFlags), true)
+var Stdout = NewLogReporter(log.New(os.Stdout, "", log.LstdFlags), true)
