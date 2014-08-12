@@ -1,12 +1,12 @@
 // Package slog provides concurrent levelled logging capabilities
 // with parent/child loggers.
 //
-// * Concurrent safe
-// * Three levels; `slog.Err`, `slog.Warn`, and `slog.Info`
-// * Children loggers for sub-processes
-// * Built-in zero-memory `slog.NilLogger` to easily logging off without changing calling code
-// * Custom reporters to send logs anywhere
-// * `Reporters` function for reporting to many places
+//    * Concurrent safe
+//    * Three levels; `slog.Err`, `slog.Warn`, and `slog.Info`
+//    * Children loggers for sub-processes
+//    * Built-in zero-memory `slog.NilLogger` to easily logging off without changing calling code
+//    * Custom reporters to send logs anywhere
+//    * `Reporters` function for reporting to many places
 //
 // Usage
 //
@@ -30,4 +30,5 @@
 //     // stop the logger
 //     l.Stop()
 //     <-l.StopChan() // wait for it to stop
+//
 package slog
