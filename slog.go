@@ -115,10 +115,13 @@ var _ Logger = (*logger)(nil)
 // like a Logger, used for logging.
 // RootLogger is also a stop.Stopper and can have the
 // Reporter specified, where children Logger types cannot.
+// By default, the returned Logger will log to the slog.Stdout
+// reporter, but this can be changed with SetReporter.
 func New(source string, level Level) RootLogger {
 	l := &logger{
 		level: level,
 		src:   []string{source},
+		r:     Stdout,
 	}
 	l.root = l // use this one as the root one
 	l.Start()
@@ -245,9 +248,9 @@ type nilLogger struct{}
 
 // NilLogger represents a zero memory Logger that always
 // returns false on the methods.
-var NilLogger = &nilLogger{}
+var NilLogger nilLogger
 
-var _ Logger = (*nilLogger)(nil)
+var _ Logger = (*nilLogger)(nil) // ensure nilLogger is a valid Logger
 
 func (_ nilLogger) Info(a ...interface{}) bool { return false }
 func (_ nilLogger) Warn(a ...interface{}) bool { return false }
