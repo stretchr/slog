@@ -51,6 +51,22 @@ func (f ReporterFunc) Log(l *Log) {
 	f(l)
 }
 
+type reporters []Reporter
+
+func (rs reporters) Log(l *Log) {
+	for _, r := range rs {
+		r.Log(l)
+	}
+}
+
+// Reporters makes a Reporter that reports to multiple
+// reporters in order.
+func Reporters(rs ...Reporter) Reporter {
+	return reporters(rs)
+}
+
+var _ Reporter = (Reporters)(nil)
+
 // RootLogger represents a the root Logger that has
 // more capabilities than a normal Logger.
 // Normally, caller code would require the Logger interface only.

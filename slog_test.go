@@ -185,3 +185,31 @@ func TestReporterFunc(t *testing.T) {
 	require.NotNil(t, logs[0].When)
 
 }
+
+func TestMultipleReporters(t *testing.T) {
+
+	var logs1 []*slog.Log
+	r1 := slog.ReporterFunc(func(l *slog.Log) {
+		logs1 = append(logs1, l)
+	})
+	var logs2 []*slog.Log
+	r2 := slog.ReporterFunc(func(l *slog.Log) {
+		logs2 = append(logs2, l)
+	})
+	var logs3 []*slog.Log
+	r3 := slog.ReporterFunc(func(l *slog.Log) {
+		logs3 = append(logs3, l)
+	})
+
+	rs := slog.Reporters(r1, r2, r3)
+	l := &slog.Log{}
+	rs.Log(l)
+
+	require.Equal(t, 1, len(logs1))
+	require.Equal(t, 1, len(logs2))
+	require.Equal(t, 1, len(logs3))
+	require.Equal(t, l, logs1[0])
+	require.Equal(t, l, logs2[0])
+	require.Equal(t, l, logs3[0])
+
+}
