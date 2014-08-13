@@ -25,6 +25,8 @@ const (
 	Warn
 	// Info represents information level logging.
 	Info
+	// Debug represents debug level logging.
+	Debug
 
 	// Everything logs everything.
 	Everything // must always be last value
@@ -97,6 +99,9 @@ type Logger interface {
 	// Err gets whether the logger is logging errors or not,
 	// and also makes such logs.
 	Err(a ...interface{}) bool
+	// Debug gets whether the logger is logging errors or not,
+	// and also makes such logs.
+	Debug(a ...interface{}) bool
 	// New creates a new child logger, with this as the parent.
 	New(source string) Logger
 	// SetSource sets the source of this logger.
@@ -172,6 +177,17 @@ func (l *logger) Start() {
 			l.root.r.Log(item)
 		}
 	}()
+}
+
+func (l *logger) Debug(a ...interface{}) bool {
+	if l.skip(Debug) {
+		return false
+	}
+	if len(a) == 0 {
+		return true
+	}
+	l.root.c <- &Log{When: time.Now(), Data: a, Source: l.src, Level: Debug}
+	return true
 }
 
 func (l *logger) Info(a ...interface{}) bool {
@@ -262,8 +278,9 @@ var NilLogger nilLogger
 
 var _ Logger = (*nilLogger)(nil) // ensure nilLogger is a valid Logger
 
-func (_ nilLogger) Info(a ...interface{}) bool { return false }
-func (_ nilLogger) Warn(a ...interface{}) bool { return false }
-func (_ nilLogger) Err(a ...interface{}) bool  { return false }
-func (_ nilLogger) New(string) Logger          { return NilLogger }
-func (_ nilLogger) SetSource(string)           {}
+func (_ nilLogger) Debug(a ...interface{}) bool { return false }
+func (_ nilLogger) Info(a ...interface{}) bool  { return false }
+func (_ nilLogger) Warn(a ...interface{}) bool  { return false }
+func (_ nilLogger) Err(a ...interface{}) bool   { return false }
+func (_ nilLogger) New(string) Logger           { return NilLogger }
+func (_ nilLogger) SetSource(string)            {}

@@ -177,6 +177,12 @@ func TestLevels(t *testing.T) {
 	require.True(t, logger.Warn())
 	require.True(t, logger.Err())
 
+	logger.SetLevel(slog.Debug)
+	require.True(t, logger.Debug())
+	require.True(t, logger.Info())
+	require.True(t, logger.Warn())
+	require.True(t, logger.Err())
+
 	logger.SetLevel(slog.Everything)
 	require.True(t, logger.Info())
 	require.True(t, logger.Warn())
