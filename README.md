@@ -99,3 +99,7 @@ If you want to report logs to multiple locations, you can use the `Reporters` fu
 logger := slog.New("prefix", slog.Info)
 logger.SetReporter(slog.Reporters(slog.Stdout, msgQueueReporter, databaseReporter))
 ```
+
+## Notes
+
+  * Avoid catching logic inside `if log.Info()` blocks, changing log levels or instance of `Logger` should *not* affect flow.
