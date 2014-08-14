@@ -32,7 +32,7 @@ func NewTestReporter() *TestReporter {
 
 func TestLog(t *testing.T) {
 
-	l := slog.New("parent", slog.Err)
+	l := slog.New("parent", slog.LevelErr)
 	defer func() {
 		l.Stop(stop.NoWait)
 		<-l.StopChan()
@@ -53,8 +53,26 @@ func TestLog(t *testing.T) {
 	require.Equal(t, "parent", r.logs[0].Source[0])
 	require.Equal(t, "Something went", r.logs[0].Data[0])
 	require.Equal(t, "wrong", r.logs[0].Data[1])
-	require.Equal(t, slog.Err, r.logs[0].Level)
+	require.Equal(t, slog.LevelErr, r.logs[0].Level)
 	require.NotNil(t, r.logs[0].When)
+
+}
+
+func TestLevelStrings(t *testing.T) {
+
+	require.Equal(t, slog.LevelDebug.String(), "debug")
+	require.Equal(t, slog.LevelInfo.String(), "info")
+	require.Equal(t, slog.LevelErr.String(), "error")
+	require.Equal(t, slog.LevelWarn.String(), "warning")
+
+	require.Equal(t, slog.LevelDebug, slog.ParseLevel("debug"))
+	require.Equal(t, slog.LevelInfo, slog.ParseLevel("info"))
+	require.Equal(t, slog.LevelErr, slog.ParseLevel("err"))
+	require.Equal(t, slog.LevelWarn, slog.ParseLevel("warn"))
+	require.Equal(t, slog.LevelDebug, slog.ParseLevel("d"))
+	require.Equal(t, slog.LevelInfo, slog.ParseLevel("i"))
+	require.Equal(t, slog.LevelErr, slog.ParseLevel("e"))
+	require.Equal(t, slog.LevelWarn, slog.ParseLevel("w"))
 
 }
 
@@ -62,7 +80,7 @@ func TestSetSource(t *testing.T) {
 
 	var wg sync.WaitGroup
 
-	p := slog.New("parent", slog.Err)
+	p := slog.New("parent", slog.LevelErr)
 	l := p.New("child")
 	defer func() {
 		p.Stop(stop.NoWait)
@@ -100,7 +118,7 @@ func TestLogChildren(t *testing.T) {
 
 	var wg sync.WaitGroup
 
-	parent := slog.New("parent", slog.Info)
+	parent := slog.New("parent", slog.LevelInfo)
 	defer func() {
 		parent.Stop(stop.NoWait)
 		<-parent.StopChan()
@@ -129,27 +147,27 @@ func TestLogChildren(t *testing.T) {
 	require.Equal(t, "parent", r.logs[0].Source[0])
 	require.Equal(t, "Something went", r.logs[0].Data[0])
 	require.Equal(t, "wrong", r.logs[0].Data[1])
-	require.Equal(t, slog.Info, r.logs[0].Level)
+	require.Equal(t, slog.LevelInfo, r.logs[0].Level)
 	require.NotNil(t, r.logs[0].When)
 
 	require.Equal(t, "parent", r.logs[1].Source[0])
 	require.Equal(t, "child", r.logs[1].Source[1])
 	require.Equal(t, "something went wrong in the child too", r.logs[1].Data[0])
-	require.Equal(t, slog.Info, r.logs[1].Level)
+	require.Equal(t, slog.LevelInfo, r.logs[1].Level)
 	require.NotNil(t, r.logs[1].When)
 
 	require.Equal(t, "parent", r.logs[2].Source[0])
 	require.Equal(t, "child", r.logs[2].Source[1])
 	require.Equal(t, "grandchild", r.logs[2].Source[2])
 	require.Equal(t, "something went wrong in the grandchild too", r.logs[2].Data[0])
-	require.Equal(t, slog.Info, r.logs[2].Level)
+	require.Equal(t, slog.LevelInfo, r.logs[2].Level)
 	require.NotNil(t, r.logs[2].When)
 
 }
 
 func TestLevels(t *testing.T) {
 
-	logger := slog.New("parent", slog.Info)
+	logger := slog.New("parent", slog.LevelInfo)
 	defer func() {
 		logger.Stop(stop.NoWait)
 		<-logger.StopChan()
@@ -157,33 +175,33 @@ func TestLevels(t *testing.T) {
 	r := NewTestReporter()
 	logger.SetReporter(r)
 
-	logger.SetLevel(slog.Nothing)
+	logger.SetLevel(slog.LevelNothing)
 	require.False(t, logger.Info())
 	require.False(t, logger.Warn())
 	require.False(t, logger.Err())
 
-	logger.SetLevel(slog.Err)
+	logger.SetLevel(slog.LevelErr)
 	require.False(t, logger.Info())
 	require.False(t, logger.Warn())
 	require.True(t, logger.Err())
 
-	logger.SetLevel(slog.Warn)
+	logger.SetLevel(slog.LevelWarn)
 	require.False(t, logger.Info())
 	require.True(t, logger.Warn())
 	require.True(t, logger.Err())
 
-	logger.SetLevel(slog.Info)
+	logger.SetLevel(slog.LevelInfo)
 	require.True(t, logger.Info())
 	require.True(t, logger.Warn())
 	require.True(t, logger.Err())
 
-	logger.SetLevel(slog.Debug)
+	logger.SetLevel(slog.LevelDebug)
 	require.True(t, logger.Debug())
 	require.True(t, logger.Info())
 	require.True(t, logger.Warn())
 	require.True(t, logger.Err())
 
-	logger.SetLevel(slog.Everything)
+	logger.SetLevel(slog.LevelEverything)
 	require.True(t, logger.Info())
 	require.True(t, logger.Warn())
 	require.True(t, logger.Err())
@@ -195,7 +213,7 @@ func TestLogReporter(t *testing.T) {
 	var buf bytes.Buffer
 	logLogger := log.New(&buf, "prefix: ", log.LstdFlags)
 
-	logger := slog.New("parent", slog.Everything)
+	logger := slog.New("parent", slog.LevelEverything)
 	logger.SetReporter(slog.NewLogReporter(logLogger, false))
 	child := logger.New("child")
 	child.Info(errors.New("message"))
@@ -210,7 +228,7 @@ func TestLogReporter(t *testing.T) {
 
 func TestReporterFunc(t *testing.T) {
 
-	l := slog.New("parent", slog.Err)
+	l := slog.New("parent", slog.LevelErr)
 	defer func() {
 		l.Stop(stop.NoWait)
 		<-l.StopChan()
@@ -233,7 +251,7 @@ func TestReporterFunc(t *testing.T) {
 	require.Equal(t, "parent", logs[0].Source[0])
 	require.Equal(t, "Something went", logs[0].Data[0])
 	require.Equal(t, "wrong", logs[0].Data[1])
-	require.Equal(t, slog.Err, logs[0].Level)
+	require.Equal(t, slog.LevelErr, logs[0].Level)
 	require.NotNil(t, logs[0].When)
 
 }

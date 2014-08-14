@@ -15,21 +15,55 @@ const nestedLogSep = "»"
 // Level represents the level of logging.
 type Level uint8
 
+var levelStrs = map[Level]string{
+	LevelInvalid: "invalid",
+	LevelNothing: "none",
+	LevelErr:     "error",
+	LevelWarn:    "warning",
+	LevelInfo:    "info",
+	LevelDebug:   "debug",
+}
+
+// String gets the string representation of
+// the Level.
+func (l Level) String() string {
+	if s, ok := levelStrs[l]; ok {
+		return s
+	}
+	return levelStrs[LevelInvalid]
+}
+
+// ParseLevel gets the Level from the specified
+// String.
+func ParseLevel(s string) Level {
+	s = strings.ToLower(s)
+	for l, str := range levelStrs {
+		if strings.HasPrefix(str, s) {
+			return l
+		}
+	}
+	return LevelInvalid
+}
+
 const (
-	// Nothing represents no logging.
-	Nothing Level = iota // must always be first value.
+	// LevelInvalid represents an invalid Level.
+	// Should never be used, use LevelNothing instead.
+	LevelInvalid Level = iota
 
-	// Err represents error level logging.
-	Err
-	// Warn represents warning level logging.
-	Warn
-	// Info represents information level logging.
-	Info
-	// Debug represents debug level logging.
-	Debug
+	// LevelNothing represents no logging.
+	LevelNothing
 
-	// Everything logs everything.
-	Everything // must always be last value
+	// LevelErr represents error level logging.
+	LevelErr
+	// LevelWarn represents warning level logging.
+	LevelWarn
+	// LevelInfo represents information level logging.
+	LevelInfo
+	// LevelDebug represents debug level logging.
+	LevelDebug
+
+	// LevelEverything logs everything.
+	LevelEverything // must always be last value
 )
 
 // Log represents a single log item.
@@ -180,46 +214,46 @@ func (l *logger) Start() {
 }
 
 func (l *logger) Debug(a ...interface{}) bool {
-	if l.skip(Debug) {
+	if l.skip(LevelDebug) {
 		return false
 	}
 	if len(a) == 0 {
 		return true
 	}
-	l.root.c <- &Log{When: time.Now(), Data: a, Source: l.src, Level: Debug}
+	l.root.c <- &Log{When: time.Now(), Data: a, Source: l.src, Level: LevelDebug}
 	return true
 }
 
 func (l *logger) Info(a ...interface{}) bool {
-	if l.skip(Info) {
+	if l.skip(LevelInfo) {
 		return false
 	}
 	if len(a) == 0 {
 		return true
 	}
-	l.root.c <- &Log{When: time.Now(), Data: a, Source: l.src, Level: Info}
+	l.root.c <- &Log{When: time.Now(), Data: a, Source: l.src, Level: LevelInfo}
 	return true
 }
 
 func (l *logger) Warn(a ...interface{}) bool {
-	if l.skip(Warn) {
+	if l.skip(LevelWarn) {
 		return false
 	}
 	if len(a) == 0 {
 		return true
 	}
-	l.root.c <- &Log{When: time.Now(), Data: a, Source: l.src, Level: Warn}
+	l.root.c <- &Log{When: time.Now(), Data: a, Source: l.src, Level: LevelWarn}
 	return true
 }
 
 func (l *logger) Err(a ...interface{}) bool {
-	if l.skip(Err) {
+	if l.skip(LevelErr) {
 		return false
 	}
 	if len(a) == 0 {
 		return true
 	}
-	l.root.c <- &Log{When: time.Now(), Data: a, Source: l.src, Level: Err}
+	l.root.c <- &Log{When: time.Now(), Data: a, Source: l.src, Level: LevelErr}
 	return true
 }
 
@@ -258,7 +292,7 @@ func (l *logReporter) Log(log *Log) {
 		args = append(args, d)
 	}
 
-	if l.fatal && log.Level == Err {
+	if l.fatal && log.Level == LevelErr {
 		l.logger.Fatalln(args...)
 	} else {
 		l.logger.Println(args...)
