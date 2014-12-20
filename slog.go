@@ -16,7 +16,7 @@ const nestedLogSep = "»"
 type Level uint8
 
 var levelStrs = map[Level]string{
-	LevelInvalid: "invalid",
+	LevelInvalid: "(invalid)",
 	LevelNothing: "none",
 	LevelErr:     "error",
 	LevelWarn:    "warning",
@@ -38,6 +38,7 @@ func (l Level) String() string {
 func ParseLevel(s string) Level {
 	s = strings.ToLower(s)
 	for l, str := range levelStrs {
+		log.Println(str, s)
 		if strings.HasPrefix(str, s) {
 			return l
 		}
@@ -310,11 +311,16 @@ type nilLogger struct{}
 // returns false on the methods.
 var NilLogger nilLogger
 
-var _ Logger = (*nilLogger)(nil) // ensure nilLogger is a valid Logger
+var _ RootLogger = (*nilLogger)(nil) // ensure nilLogger is a valid Logger
 
-func (_ nilLogger) Debug(a ...interface{}) bool { return false }
-func (_ nilLogger) Info(a ...interface{}) bool  { return false }
-func (_ nilLogger) Warn(a ...interface{}) bool  { return false }
-func (_ nilLogger) Err(a ...interface{}) bool   { return false }
-func (_ nilLogger) New(string) Logger           { return NilLogger }
-func (_ nilLogger) SetSource(string)            {}
+func (n nilLogger) Debug(a ...interface{}) bool  { return false }
+func (n nilLogger) Info(a ...interface{}) bool   { return false }
+func (n nilLogger) Warn(a ...interface{}) bool   { return false }
+func (n nilLogger) Err(a ...interface{}) bool    { return false }
+func (n nilLogger) New(string) Logger            { return NilLogger }
+func (n nilLogger) SetSource(string)             {}
+func (n nilLogger) SetLevel(Level)               {}
+func (n nilLogger) SetReporter(Reporter)         {}
+func (n nilLogger) SetReporterFunc(ReporterFunc) {}
+func (n nilLogger) Stop(time.Duration)           {}
+func (n nilLogger) StopChan() <-chan stop.Signal { return nil }
