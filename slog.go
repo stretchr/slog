@@ -38,7 +38,6 @@ func (l Level) String() string {
 func ParseLevel(s string) Level {
 	s = strings.ToLower(s)
 	for l, str := range levelStrs {
-		log.Println(str, s)
 		if strings.HasPrefix(str, s) {
 			return l
 		}
