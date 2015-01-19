@@ -51,8 +51,8 @@ func TestLog(t *testing.T) {
 	require.Equal(t, 1, len(r.logs))
 
 	require.Equal(t, "parent", r.logs[0].Source[0])
-	require.Equal(t, "Something went", r.logs[0].Data[0])
-	require.Equal(t, "wrong", r.logs[0].Data[1])
+	require.Equal(t, "Something went", r.logs[0].Data[1])
+	require.Equal(t, "wrong", r.logs[0].Data[2])
 	require.Equal(t, slog.LevelErr, r.logs[0].Level)
 	require.NotNil(t, r.logs[0].When)
 
@@ -145,21 +145,21 @@ func TestLogChildren(t *testing.T) {
 	require.Equal(t, 3, len(r.logs))
 
 	require.Equal(t, "parent", r.logs[0].Source[0])
-	require.Equal(t, "Something went", r.logs[0].Data[0])
-	require.Equal(t, "wrong", r.logs[0].Data[1])
+	require.Equal(t, "Something went", r.logs[0].Data[1])
+	require.Equal(t, "wrong", r.logs[0].Data[2])
 	require.Equal(t, slog.LevelInfo, r.logs[0].Level)
 	require.NotNil(t, r.logs[0].When)
 
 	require.Equal(t, "parent", r.logs[1].Source[0])
 	require.Equal(t, "child", r.logs[1].Source[1])
-	require.Equal(t, "something went wrong in the child too", r.logs[1].Data[0])
+	require.Equal(t, "something went wrong in the child too", r.logs[1].Data[1])
 	require.Equal(t, slog.LevelInfo, r.logs[1].Level)
 	require.NotNil(t, r.logs[1].When)
 
 	require.Equal(t, "parent", r.logs[2].Source[0])
 	require.Equal(t, "child", r.logs[2].Source[1])
 	require.Equal(t, "grandchild", r.logs[2].Source[2])
-	require.Equal(t, "something went wrong in the grandchild too", r.logs[2].Data[0])
+	require.Equal(t, "something went wrong in the grandchild too", r.logs[2].Data[1])
 	require.Equal(t, slog.LevelInfo, r.logs[2].Level)
 	require.NotNil(t, r.logs[2].When)
 
@@ -249,8 +249,8 @@ func TestReporterFunc(t *testing.T) {
 	require.Equal(t, 1, len(logs))
 
 	require.Equal(t, "parent", logs[0].Source[0])
-	require.Equal(t, "Something went", logs[0].Data[0])
-	require.Equal(t, "wrong", logs[0].Data[1])
+	require.Equal(t, "Something went", logs[0].Data[1])
+	require.Equal(t, "wrong", logs[0].Data[2])
 	require.Equal(t, slog.LevelErr, logs[0].Level)
 	require.NotNil(t, logs[0].When)
 
