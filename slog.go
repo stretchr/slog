@@ -224,7 +224,7 @@ func (l *logger) Debug(a ...interface{}) bool {
 		return true
 	}
 	_, path, line, _ := runtime.Caller(1)
-	file := fmt.Sprintf("(%s:%d)", filepath.Base(path), line)
+	file := fmt.Sprintf("( %s:%d )", filepath.Base(path), line)
 	l.root.c <- &Log{When: time.Now(), Data: append([]interface{}{file}, a...), Source: l.src, Level: LevelDebug}
 	return true
 }
@@ -237,7 +237,7 @@ func (l *logger) Info(a ...interface{}) bool {
 		return true
 	}
 	_, path, line, _ := runtime.Caller(1)
-	file := fmt.Sprintf("(%s:%d)", filepath.Base(path), line)
+	file := fmt.Sprintf("( %s:%d )", filepath.Base(path), line)
 	l.root.c <- &Log{When: time.Now(), Data: append([]interface{}{file}, a...), Source: l.src, Level: LevelInfo}
 	return true
 }
@@ -250,7 +250,7 @@ func (l *logger) Warn(a ...interface{}) bool {
 		return true
 	}
 	_, path, line, _ := runtime.Caller(1)
-	file := fmt.Sprintf("(%s:%d)", filepath.Base(path), line)
+	file := fmt.Sprintf("( %s:%d )", filepath.Base(path), line)
 	l.root.c <- &Log{When: time.Now(), Data: append([]interface{}{file}, a...), Source: l.src, Level: LevelWarn}
 	return true
 }
@@ -263,7 +263,7 @@ func (l *logger) Err(a ...interface{}) bool {
 		return true
 	}
 	_, path, line, _ := runtime.Caller(1)
-	file := fmt.Sprintf("(%s:%d)", filepath.Base(path), line)
+	file := fmt.Sprintf("( %s:%d )", filepath.Base(path), line)
 	l.root.c <- &Log{When: time.Now(), Data: append([]interface{}{file}, a...), Source: l.src, Level: LevelErr}
 	return true
 }
