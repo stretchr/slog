@@ -221,7 +221,7 @@ func TestLogReporter(t *testing.T) {
 	time.Sleep(500 * time.Millisecond)
 
 	require.Contains(t, buf.String(), `message`)
-	require.Contains(t, buf.String(), "parent»child:")
+	require.Contains(t, buf.String(), "parent>child:")
 	require.Contains(t, buf.String(), `prefix:`)
 
 }

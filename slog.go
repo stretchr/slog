@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/pat/stop"
 )
 
-const nestedLogSep = "»"
+const nestedLogSep = ">"
 
 // Level represents the level of logging.
 type Level uint8
